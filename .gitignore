@@ -1,2 +1,5 @@
 .idea
 *.DotSettings*
+*.runsettings
+[Bb]in/
+[Oo]bj/
