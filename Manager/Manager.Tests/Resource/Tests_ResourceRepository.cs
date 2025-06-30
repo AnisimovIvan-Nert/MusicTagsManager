@@ -1,6 +1,6 @@
 using System.Text;
+using Manager.Implementation.Resource;
 using Manager.Resource;
-using Manager.Resource.Implementation;
 
 namespace Manager.Tests.Resource;
 

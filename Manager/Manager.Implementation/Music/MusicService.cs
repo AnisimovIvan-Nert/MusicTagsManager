@@ -1,7 +1,8 @@
-﻿using Manager.Resource;
+﻿using Manager.Music;
+using Manager.Resource;
 using Manager.Tags;
 
-namespace Manager.Music.Implementation;
+namespace Manager.Implementation.Music;
 
 public class MusicService(
     IResourceService resourceService, 

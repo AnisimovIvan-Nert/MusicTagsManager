@@ -1,5 +1,5 @@
+using Manager.Implementation.Resource;
 using Manager.Resource;
-using Manager.Resource.Implementation;
 using Manager.Tests.Fakes.Resource.InMemory;
 
 namespace Manager.Tests.Resource;

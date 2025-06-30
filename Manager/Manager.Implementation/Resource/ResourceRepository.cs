@@ -1,4 +1,6 @@
-namespace Manager.Resource.Implementation;
+using Manager.Resource;
+
+namespace Manager.Implementation.Resource;
 
 public delegate bool FileFilter(FileInfo file);
 

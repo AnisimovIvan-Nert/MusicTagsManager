@@ -1,8 +1,9 @@
 using Manager.Resource;
+using Manager.Tags;
 using TagLib;
 using File = TagLib.File;
 
-namespace Manager.Tags.Implementation;
+namespace Manager.Implementation.Tags;
 
 public class TagsService(IResourceService resourceService) : ITagsService
 {

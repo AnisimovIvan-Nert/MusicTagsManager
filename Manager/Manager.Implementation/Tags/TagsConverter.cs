@@ -1,6 +1,7 @@
+using Manager.Tags;
 using TagLib;
 
-namespace Manager.Tags.Implementation;
+namespace Manager.Implementation.Tags;
 
 public static class TagsConverter
 {

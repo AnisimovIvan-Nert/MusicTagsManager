@@ -1,7 +1,7 @@
 using Manager.Resource;
 using File = TagLib.File;
 
-namespace Manager.Tags.Implementation;
+namespace Manager.Implementation.Tags;
 
 public class ResourceFileAbstraction(
     IResourceService resourceService, 

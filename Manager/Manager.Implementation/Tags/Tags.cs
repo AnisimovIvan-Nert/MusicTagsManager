@@ -1,4 +1,6 @@
-namespace Manager.Tags.Implementation;
+using Manager.Tags;
+
+namespace Manager.Implementation.Tags;
 
 internal class Tags(string? title, string? artist, string? album, string? albumArtist) : IEditableTags
 {

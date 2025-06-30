@@ -1,7 +1,8 @@
+using Manager.Music;
 using Manager.Resource;
 using Manager.Tags;
 
-namespace Manager.Music.Implementation;
+namespace Manager.Implementation.Music;
 
 internal class Music(IResourceIdentifier identifier, ITags tags) : IMusic
 {

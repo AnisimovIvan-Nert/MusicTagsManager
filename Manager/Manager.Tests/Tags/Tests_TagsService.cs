@@ -1,6 +1,5 @@
-using Manager.Resource;
-using Manager.Resource.Implementation;
-using Manager.Tags.Implementation;
+using Manager.Implementation.Resource;
+using Manager.Implementation.Tags;
 using Manager.Tests.Fakes.Resource.InMemory;
 
 namespace Manager.Tests.Tags;

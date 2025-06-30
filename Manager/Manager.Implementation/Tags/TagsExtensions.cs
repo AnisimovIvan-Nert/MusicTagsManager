@@ -1,4 +1,4 @@
-namespace Manager.Tags.Implementation;
+namespace Manager.Implementation.Tags;
 
 internal static class TagsExtensions
 {
