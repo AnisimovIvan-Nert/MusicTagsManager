@@ -5,8 +5,12 @@ namespace Manager.Implementation.Resource;
 internal class ResourceStreamAccess(string path) : IResourceStreamAccess
 {
     public Stream OpenRead()
-        => File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read);
+    {
+        return File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read);
+    }
 
     public Stream OpenWrite()
-        => File.Open(path, FileMode.Open, FileAccess.ReadWrite);
+    {
+        return File.Open(path, FileMode.Open, FileAccess.ReadWrite);
+    }
 }

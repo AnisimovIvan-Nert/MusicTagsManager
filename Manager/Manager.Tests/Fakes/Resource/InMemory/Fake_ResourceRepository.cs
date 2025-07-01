@@ -3,7 +3,7 @@ using Manager.Resource;
 namespace Manager.Tests.Fakes.Resource.InMemory;
 
 public class Fake_ResourceRepository(
-    IResource resource) 
+    IResource resource)
     : IResourceRepository
 {
     private IResourceStreamAccess? _streamAccess;
@@ -11,6 +11,11 @@ public class Fake_ResourceRepository(
     public IEnumerable<IResource> GetAll()
     {
         yield return resource;
+    }
+
+    public IResource Get(IResourceIdentifier identifier)
+    {
+        return resource;
     }
 
     public IResourceStreamAccess GetStreamAccess(IResourceIdentifier identifier)

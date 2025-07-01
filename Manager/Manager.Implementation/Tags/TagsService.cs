@@ -7,9 +7,17 @@ namespace Manager.Implementation.Tags;
 
 public class TagsService(IResourceService resourceService) : ITagsService
 {
+    public static IEnumerable<string> GetSupportedAudioFormats =>
+    [
+        ".aa", ".aax", ".aac", ".aiff", ".ape", ".dsf", ".flac", ".m4a", ".m4b",
+        ".m4p", ".mp3", ".mpc", ".mpp", ".ogg", ".oga", ".wav", ".wma", ".wv", ".webm"
+    ];
+
     public ITags Load(IResourceIdentifier resource)
-        => LoadEditable(resource);
-    
+    {
+        return LoadEditable(resource);
+    }
+
     public IEditableTags LoadEditable(IResourceIdentifier resource)
     {
         var fileAbstraction = new ResourceFileAbstraction(resourceService, resource);

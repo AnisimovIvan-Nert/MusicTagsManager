@@ -19,6 +19,7 @@ public class Fake_ResourceStreamAccess : IResourceStreamAccess, IDisposable
 
         return _stream;
     }
+
     public Stream OpenWrite()
     {
         var isClosed = _stream.CanRead == false;

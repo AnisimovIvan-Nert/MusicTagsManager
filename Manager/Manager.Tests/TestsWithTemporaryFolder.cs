@@ -2,16 +2,15 @@ namespace Manager.Tests;
 
 public abstract class TestsWithTemporaryFolder : IDisposable
 {
-    private List<DirectoryInfo>? _extraDirectories;
-    
     protected readonly DirectoryInfo TestDirectory;
-    
+    private List<DirectoryInfo>? _extraDirectories;
+
     protected TestsWithTemporaryFolder()
     {
         var name = GetTypeSpecificDirectoryName();
         TestDirectory = CreateDirectory(name);
     }
-    
+
     public virtual void Dispose()
     {
         _extraDirectories?.ForEach(directory => directory.Delete(true));
@@ -22,7 +21,7 @@ public abstract class TestsWithTemporaryFolder : IDisposable
     protected IEnumerable<DirectoryInfo> CreateExtraDirectories(int count = 1)
     {
         _extraDirectories ??= [];
-        
+
         var start = _extraDirectories.Count;
         for (var i = start; i < count + start; i++)
         {
@@ -33,15 +32,15 @@ public abstract class TestsWithTemporaryFolder : IDisposable
         }
     }
 
-    protected string CreateFile(string fileName, 
+    protected string CreateFile(string fileName,
         string? folder = null, DirectoryInfo? root = null)
     {
         root ??= TestDirectory;
-        
+
         var directory = root;
         if (folder != null)
             directory = directory.CreateSubdirectory(folder);
-        
+
         var file = File.Create(Path.Combine(directory.FullName, fileName));
         var path = file.Name;
         file.Dispose();
@@ -54,7 +53,7 @@ public abstract class TestsWithTemporaryFolder : IDisposable
         root ??= TestDirectory;
         return root.EnumerateFiles("*", SearchOption.AllDirectories);
     }
-    
+
     private DirectoryInfo CreateDirectory(string name)
     {
         var currentDirectory = Directory.GetCurrentDirectory();

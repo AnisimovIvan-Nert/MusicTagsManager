@@ -7,11 +7,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Manager\Manager.csproj" />
+        <ProjectReference Include="..\Manager\Manager.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="TagLibSharp" Version="2.3.0" />
+        <PackageReference Include="TagLibSharp" Version="2.3.0"/>
     </ItemGroup>
 
 </Project>
