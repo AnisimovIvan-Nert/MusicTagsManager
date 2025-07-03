@@ -17,17 +17,19 @@ public class MusicEditor : Box
     private readonly Box _content;
     private readonly Widget _musicDisplay;
     private readonly MusicManager _musicManager;
-
     private readonly MusicView[] _musicViews;
+    private readonly IMusicSelection? _musicSelection;
 
     private TagsEditor? _tagsEditor;
 
-    public MusicEditor(IEnumerable<MusicView> musics, Widget musicDisplay, MusicManager musicManager)
+    public MusicEditor(IEnumerable<MusicView> musics, Widget musicDisplay, 
+        MusicManager musicManager, IMusicSelection? musicSelection = null)
         : base(Orientation.Vertical, 0)
     {
         _musicViews = musics.ToArray();
         _musicManager = musicManager;
         _musicDisplay = musicDisplay;
+        _musicSelection = musicSelection;
 
         _content = new Box(Orientation.Vertical, 0);
         _content.Margin = 8;
@@ -102,7 +104,11 @@ public class MusicEditor : Box
 
     private void PackTagsEditor()
     {
-        _tagsEditor = new TagsEditor(_musicViews, _musicManager);
+        var selectedMusic = _musicSelection?.GetSelectedMusic().ToArray();
+        if (selectedMusic == null || selectedMusic.Length == 0)
+            selectedMusic = _musicViews;
+        
+        _tagsEditor = new TagsEditor(selectedMusic, _musicManager);
         _content.PackStart(_tagsEditor);
     }
 

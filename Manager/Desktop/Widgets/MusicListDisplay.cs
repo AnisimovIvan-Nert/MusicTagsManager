@@ -7,10 +7,11 @@ using Manager.Desktop.Views;
 
 namespace Desktop.Widgets;
 
-public class MusicListDisplay : Box
+public class MusicListDisplay : Box, IMusicSelection
 {
     private readonly Dictionary<Column, ListColumn> _columns;
     private readonly MusicView[] _musics;
+    private readonly Dictionary<TreeIter, MusicView> _iterToMusic;
     private ListStore? _model;
     private TreeView? _tree;
 
@@ -19,9 +20,27 @@ public class MusicListDisplay : Box
     {
         _musics = musics.ToArray();
         _columns = new Dictionary<Column, ListColumn>();
+        _iterToMusic = new Dictionary<TreeIter, MusicView>();
 
         PackColumnToggleBox();
         PackTreeView();
+    }
+    
+    public IEnumerable<MusicView> GetSelectedMusic()
+    {
+        if (_tree == null)
+            return [];
+        
+        var selectedRows = _tree.Selection.GetSelectedRows();
+        var selectedMusics = new List<MusicView>();
+        foreach (var selected in selectedRows)
+        {
+            _tree.Model.GetIter(out var iter, selected);
+            var selectedMusic = _iterToMusic[iter];
+            selectedMusics.Add(selectedMusic);
+        }
+
+        return selectedMusics;
     }
 
     private void PackColumnToggleBox()
@@ -70,9 +89,11 @@ public class MusicListDisplay : Box
         var columnTypes = Enumerable.Repeat(typeof(string), columnCount);
         _model = new ListStore(columnTypes.ToArray());
 
+        _iterToMusic.Clear();
         foreach (var music in _musics)
         {
             var iter = _model.Append();
+            _iterToMusic[iter] = music;
             _model.SetValue(iter, (int)Column.Title, music.Title);
             _model.SetValue(iter, (int)Column.Artist, music.Artist);
             _model.SetValue(iter, (int)Column.Album, music.Album);
