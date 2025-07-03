@@ -9,7 +9,7 @@ public static class MusicViewFactory
     public static MusicView CreateMusic(IMusic music, IResourceService resourceService)
     {
         var resource = resourceService.Get(music.Identifier);
-        var resourceView = new ResourceView(resource.Name, resource.Location);
+        var resourceView = new ResourceView(resource.Name, resource.Location, resource);
         return new MusicView(music.Title, music.Artist, music.Album, music.AlbumArtist, resourceView);
     }
 

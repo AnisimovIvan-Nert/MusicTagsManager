@@ -2,59 +2,69 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Desktop.View;
+using Desktop.Widgets.Extensions;
 using Gtk;
 
 namespace Desktop.Widgets;
 
 public class MusicListDisplay : Box
 {
-    private readonly Dictionary<CheckButton, Column> _buttonToColumnEnum;
-    private readonly Dictionary<Column, TreeViewColumn> _columnEnumToTreeColumn;
+    private readonly Dictionary<Column, ListColumn> _columns;
     private readonly MusicView[] _musics;
-    private readonly TreeView _tree;
     private ListStore? _model;
+    private TreeView? _tree;
 
     public MusicListDisplay(IEnumerable<MusicView> musics)
         : base(Orientation.Vertical, 3)
     {
         _musics = musics.ToArray();
-        _buttonToColumnEnum = new Dictionary<CheckButton, Column>();
-        _columnEnumToTreeColumn = new Dictionary<Column, TreeViewColumn>();
+        _columns = new Dictionary<Column, ListColumn>();
 
-        var columnToggleBox = CreateColumnToggleBox();
-        PackStart(columnToggleBox, false, true, 0);
+        PackColumnToggleBox();
+        PackTreeView();
+    }
 
-        CreateModel();
+    private void PackColumnToggleBox()
+    {
+        _columns.Clear();
+
+        var columnToggleBox = new Box(Orientation.Horizontal, 0);
+        foreach (var column in Enum.GetValues<Column>())
+        {
+            var columnName = column.ToString();
+
+            var listColumn = new ListColumn();
+            _columns[column] = listColumn;
+
+            var checkButton = new CheckButton(columnName);
+            checkButton.Active = true;
+            checkButton.Toggled += listColumn.ColumnCheckButton_Toggled;
+
+            columnToggleBox.PackStart(checkButton);
+        }
+
+        this.PackStart(columnToggleBox);
+    }
+
+    private void PackTreeView()
+    {
+        GenerateModel();
 
         var treeScroll = new ScrolledWindow
         {
             Expand = true
         };
         _tree = new TreeView(_model);
-        AddColumns();
+
+        AppendColumns();
+
         treeScroll.Add(_tree);
+        _tree.Selection.Mode = SelectionMode.Multiple;
 
-        PackStart(treeScroll, true, true, 0);
+        this.PackStart(treeScroll);
     }
 
-    private Box CreateColumnToggleBox()
-    {
-        _buttonToColumnEnum.Clear();
-        var columnToggleBox = new Box(Orientation.Horizontal, 0);
-        foreach (var column in Enum.GetValues<Column>())
-        {
-            var columnName = column.ToString();
-            var checkButton = new CheckButton(columnName);
-            checkButton.Active = true;
-            checkButton.Toggled += ColumnCheckButton_Toggled;
-            columnToggleBox.PackStart(checkButton, false, true, 0);
-            _buttonToColumnEnum[checkButton] = column;
-        }
-
-        return columnToggleBox;
-    }
-
-    private void CreateModel()
+    private void GenerateModel()
     {
         var columnCount = Enum.GetNames<Column>().Length;
         var columnTypes = Enumerable.Repeat(typeof(string), columnCount);
@@ -72,28 +82,20 @@ public class MusicListDisplay : Box
         }
     }
 
-    private void AddColumns()
+    private void AppendColumns()
     {
-        _columnEnumToTreeColumn.Clear();
-        foreach (var columnEnum in Enum.GetValues<Column>())
-        {
-            var renderer = new CellRendererText();
-            var column = new TreeViewColumn(columnEnum.ToString(), renderer, "text", columnEnum, null);
-            column.SortColumnId = (int)columnEnum;
-            _tree.AppendColumn(column);
-            _columnEnumToTreeColumn[columnEnum] = column;
-        }
-    }
-
-    private void ColumnCheckButton_Toggled(object? sender, EventArgs e)
-    {
-        if (sender == null)
+        if (_tree == null)
             throw new InvalidOperationException();
 
-        var checkButton = (CheckButton)sender;
-        var columnEnum = _buttonToColumnEnum[checkButton];
-        var treeColumn = _columnEnumToTreeColumn[columnEnum];
-        treeColumn.Visible = checkButton.Active;
+        foreach (var columnEnum in Enum.GetValues<Column>())
+        {
+            var title = columnEnum.ToString();
+            var renderer = new CellRendererText();
+            var column = new TreeViewColumn(title, renderer, "text", columnEnum, null);
+            column.SortColumnId = (int)columnEnum;
+            _tree.AppendColumn(column);
+            _columns[columnEnum].AssignTreViewColum(column);
+        }
     }
 
     private enum Column
@@ -104,5 +106,27 @@ public class MusicListDisplay : Box
         ArtistAlbum,
         Name,
         Location
+    }
+
+    private class ListColumn
+    {
+        private TreeViewColumn? _treeViewColumn;
+
+        public void AssignTreViewColum(TreeViewColumn treeViewColumn)
+        {
+            _treeViewColumn = treeViewColumn;
+        }
+
+        public void ColumnCheckButton_Toggled(object? sender, EventArgs _)
+        {
+            if (_treeViewColumn == null)
+                return;
+
+            if (sender == null)
+                throw new InvalidOperationException();
+
+            var checkButton = (CheckButton)sender;
+            _treeViewColumn.Visible = checkButton.Active;
+        }
     }
 }

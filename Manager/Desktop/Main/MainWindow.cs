@@ -1,12 +1,6 @@
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using Desktop.View;
 using Gtk;
-using Manager.Implementation.Music;
-using Manager.Implementation.Resource;
-using Manager.Implementation.Tags;
 
 namespace Desktop.Main;
 
@@ -15,9 +9,7 @@ public class MainWindow : Window
     private const string OpenFolderIcon = "folder-open-symbolic";
 
     private Box? _boxContent;
-    private MusicService? _musicService;
-    private ResourceService? _resourceService;
-    private TagsService? _tagsService;
+    private MusicServiceView? _musicService;
 
     public MainWindow() : base(WindowType.Toplevel)
     {
@@ -34,14 +26,19 @@ public class MainWindow : Window
         Destroyed += (_, _) => Application.Quit();
     }
 
+    private MusicServiceView MusicService => _musicService
+                                             ?? throw new InvalidOperationException();
+
     private void DisplayFolder(string folderPath)
     {
+        _musicService = new MusicServiceView(folderPath);
+
         Remove(Child);
 
         var horizontalPaned = new Paned(Orientation.Horizontal);
         horizontalPaned.Position = 200;
 
-        var tree = CreateTreeView(folderPath);
+        var tree = CreateTreeView();
         horizontalPaned.Pack1(tree, false, true);
 
         var mainScroll = CreateMainView();
@@ -61,30 +58,14 @@ public class MainWindow : Window
         return mainScroll;
     }
 
-    private ScrolledWindow CreateTreeView(string folderPath)
+    private ScrolledWindow CreateTreeView()
     {
-        var artists = LoadArtists(folderPath);
-        var musicTree = new MusicTree(artists);
+        var artists = MusicService.LoadArtists();
+        var musicTree = new MusicTree(artists, MusicService);
         musicTree.SelectionChanged += TreeSelectionChanged;
         var treeScroll = new ScrolledWindow();
         treeScroll.Add(musicTree.TreeView);
         return treeScroll;
-    }
-
-    private IEnumerable<ArtistView> LoadArtists(string folderPath)
-    {
-        var supportedFormats = TagsService.GetSupportedAudioFormats.ToArray();
-        var resourceRepository = new ResourceRepository(folderPath, fileFilter: FileFilter);
-        _resourceService = new ResourceService(resourceRepository);
-        _tagsService = new TagsService(_resourceService);
-        _musicService = new MusicService(_resourceService, _tagsService);
-        var artists = _musicService.LoadArtists();
-        return artists.Select(artist => MusicViewFactory.CreateArtist(artist, _resourceService));
-
-        bool FileFilter(FileInfo fileInfo)
-        {
-            return supportedFormats.Contains(fileInfo.Extension);
-        }
     }
 
     private void TreeSelectionChanged(Widget widget)
@@ -99,7 +80,7 @@ public class MainWindow : Window
         _boxContent.ShowAll();
     }
 
-    private void OpenButton_Clicked(object? sender, EventArgs e)
+    private void OpenButton_Clicked(object? _, EventArgs __)
     {
         var fileChooserDialog = new FileChooserDialog("Open Folder", this, FileChooserAction.SelectFolder);
         fileChooserDialog.AddButton(Stock.Cancel, ResponseType.Cancel);

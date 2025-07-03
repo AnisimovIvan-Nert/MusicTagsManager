@@ -1,7 +1,7 @@
 using Desktop.View;
 using Gtk;
 
-namespace Desktop.Widgets.MusicDisplay;
+namespace Desktop.Widgets;
 
 public class MusicDisplay : ListSection
 {
@@ -16,10 +16,9 @@ public class MusicDisplay : ListSection
         AddLabel(nameof(musicView.Resource.Location), musicView.Resource.Location);
     }
 
-    private void AddLabel(string title, string text)
+    private void AddLabel(string name, string value)
     {
-        var label = new Label(text);
-        label.Xalign = -1;
-        AddItem(title, label);
+        var label = new Label(value);
+        AddItem(name, label);
     }
 }

@@ -13,7 +13,7 @@ public class Program
     {
         Application.Init();
 
-        var app = new Application("org.Desktop.Desktop", ApplicationFlags.None);
+        var app = new Application("Music Manager", ApplicationFlags.None);
         app.Register(Cancellable.Current);
 
         var win = new MainWindow();

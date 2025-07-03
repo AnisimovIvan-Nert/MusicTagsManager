@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Desktop.View;
 using Desktop.Widgets;
-using Desktop.Widgets.MusicDisplay;
 using Gtk;
 
 namespace Desktop.Main;
@@ -13,13 +12,15 @@ public class MusicTree
     private readonly Dictionary<TreeIter, AlbumView> _albums;
     private readonly Dictionary<TreeIter, ArtistView> _artists;
     private readonly Dictionary<TreeIter, MusicView> _musics;
-    private TreeIter? _selectAll;
+    private readonly MusicServiceView _musicService;
+    private TreeIter _selectAll;
 
-    public MusicTree(IEnumerable<ArtistView> artists)
+    public MusicTree(IEnumerable<ArtistView> artists, MusicServiceView musicService)
     {
         _artists = new Dictionary<TreeIter, ArtistView>();
         _albums = new Dictionary<TreeIter, AlbumView>();
         _musics = new Dictionary<TreeIter, MusicView>();
+        _musicService = musicService;
 
         TreeView = new TreeView();
         TreeView.HeadersVisible = false;
@@ -72,20 +73,30 @@ public class MusicTree
         return store;
     }
 
-    private void Selection_Changed(object? sender, EventArgs e)
+    private void Selection_Changed(object? _, EventArgs __)
     {
         if (TreeView.Selection.GetSelected(out var iter) == false)
             return;
 
-        var display = TryGetDisplay(iter);
-        if (display != null)
-            SelectionChanged?.Invoke(display);
+        var musicDisplay = TryGetMusicDisplay(iter, out var displayedMusic);
+
+        if (musicDisplay == null)
+            return;
+
+        var musicEditor = new MusicEditor(displayedMusic, musicDisplay, _musicService);
+        musicEditor.MusicUpdated += MusicEditor_MusicUpdated;
+        SelectionChanged?.Invoke(musicEditor);
     }
 
-    private Widget? TryGetDisplay(TreeIter iter)
+    private Widget? TryGetMusicDisplay(TreeIter iter, out List<MusicView> displayedMusic)
     {
+        displayedMusic = [];
+
         if (_musics.TryGetValue(iter, out var music))
+        {
+            displayedMusic.Add(music);
             return new MusicDisplay(music);
+        }
 
         IEnumerable<MusicView> musics;
 
@@ -101,7 +112,16 @@ public class MusicTree
         else
             return null;
 
-        var musicListDisplay = new MusicListDisplay(musics);
+        displayedMusic.AddRange(musics);
+        var musicListDisplay = new MusicListDisplay(displayedMusic);
         return musicListDisplay;
+    }
+
+    private void MusicEditor_MusicUpdated()
+    {
+        var artists = _musicService.LoadArtists();
+        var store = CreateStore(artists);
+        TreeView.Model = store;
+        TreeView.Selection.SelectIter(_selectAll);
     }
 }
