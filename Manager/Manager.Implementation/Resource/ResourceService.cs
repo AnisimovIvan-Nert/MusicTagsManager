@@ -29,6 +29,12 @@ public class ResourceService(
         return repository.GetStreamAccess(identifier).OpenWrite();
     }
 
+    public string GetResourceExtension(IResourceIdentifier identifier)
+    {
+        FindParentRepository(identifier);
+        return Path.GetExtension(identifier.Identifier);
+    }
+
     private IResourceRepository FindParentRepository(IResourceIdentifier identifier)
     {
         return repositories.First(repository => repository.Contains(identifier));

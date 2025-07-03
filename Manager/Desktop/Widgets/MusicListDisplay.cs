@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Desktop.View;
 using Desktop.Widgets.Extensions;
 using Gtk;
+using Manager.Desktop.Views;
 
 namespace Desktop.Widgets;
 

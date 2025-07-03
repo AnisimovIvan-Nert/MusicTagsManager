@@ -20,6 +20,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\Manager.Desktop\Manager.Desktop.csproj" />
         <ProjectReference Include="..\Manager.Implementation\Manager.Implementation.csproj"/>
     </ItemGroup>
 

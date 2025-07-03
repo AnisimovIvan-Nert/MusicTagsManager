@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Desktop.View;
 using Desktop.Widgets;
 using Gtk;
+using Manager.Desktop;
+using Manager.Desktop.Views;
 
 namespace Desktop.Main;
 
@@ -12,15 +13,15 @@ public class MusicTree
     private readonly Dictionary<TreeIter, AlbumView> _albums;
     private readonly Dictionary<TreeIter, ArtistView> _artists;
     private readonly Dictionary<TreeIter, MusicView> _musics;
-    private readonly MusicServiceView _musicService;
+    private readonly MusicManager _musicManager;
     private TreeIter _selectAll;
 
-    public MusicTree(IEnumerable<ArtistView> artists, MusicServiceView musicService)
+    public MusicTree(IEnumerable<ArtistView> artists, MusicManager musicManager)
     {
         _artists = new Dictionary<TreeIter, ArtistView>();
         _albums = new Dictionary<TreeIter, AlbumView>();
         _musics = new Dictionary<TreeIter, MusicView>();
-        _musicService = musicService;
+        _musicManager = musicManager;
 
         TreeView = new TreeView();
         TreeView.HeadersVisible = false;
@@ -83,7 +84,7 @@ public class MusicTree
         if (musicDisplay == null)
             return;
 
-        var musicEditor = new MusicEditor(displayedMusic, musicDisplay, _musicService);
+        var musicEditor = new MusicEditor(displayedMusic, musicDisplay, _musicManager);
         musicEditor.MusicUpdated += MusicEditor_MusicUpdated;
         SelectionChanged?.Invoke(musicEditor);
     }
@@ -119,7 +120,7 @@ public class MusicTree
 
     private void MusicEditor_MusicUpdated()
     {
-        var artists = _musicService.LoadArtists();
+        var artists = _musicManager.LoadArtists();
         var store = CreateStore(artists);
         TreeView.Model = store;
         TreeView.Selection.SelectIter(_selectAll);

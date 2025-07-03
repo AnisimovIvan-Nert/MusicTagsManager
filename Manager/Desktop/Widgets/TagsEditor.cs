@@ -1,8 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
-using Desktop.View;
 using Desktop.Widgets.Extensions;
 using Gtk;
+using Manager.Desktop;
+using Manager.Desktop.Views;
 
 namespace Desktop.Widgets;
 
@@ -14,17 +15,16 @@ public class TagsEditor : Box
     private const string AlbumArtistEntryLabel = "AlbumArtist";
 
     private readonly MusicView[] _musics;
-    private readonly MusicServiceView _musicService;
+    private readonly MusicManager _musicManager;
     private readonly TagsEntries _tagsEntries;
 
-    public TagsEditor(IEnumerable<MusicView> musics, MusicServiceView musicService)
+    public TagsEditor(IEnumerable<MusicView> musics, MusicManager musicManager)
         : base(Orientation.Vertical, 0)
     {
         _musics = musics.ToArray();
-        _musicService = musicService;
-
-        var identifiers = _musics.Select(music => music.Resource.Identifier);
-        var tags = identifiers.Select(_musicService.LoadEditableTags).ToArray();
+        _musicManager = musicManager;
+        
+        var tags = _musics.Select(_musicManager.LoadEditableTags).ToArray();
 
         _tagsEntries = new TagsEntries();
 
@@ -32,15 +32,15 @@ public class TagsEditor : Box
         var titleSensitive = AllowEditTitle();
         _tagsEntries.Add(TitleEntryLabel, titleSensitive, titleText);
 
-        var artists = tags.Select(tag => tag.Artist ?? "");
+        var artists = tags.Select(tag => tag.Artist);
         var artistOptions = new HashSet<string>(artists);
         _tagsEntries.AddComboBox(ArtistEntryLabel, artistOptions);
 
-        var albums = tags.Select(tag => tag.Album ?? "");
+        var albums = tags.Select(tag => tag.Album);
         var albumOptions = new HashSet<string>(albums);
         _tagsEntries.AddComboBox(AlbumEntryLabel, albumOptions);
 
-        var albumArtists = tags.Select(tag => tag.AlbumArtist ?? "");
+        var albumArtists = tags.Select(tag => tag.AlbumArtist);
         var albumArtistOptions = new HashSet<string>(albumArtists);
         _tagsEntries.AddComboBox(AlbumArtistEntryLabel, albumArtistOptions);
 
@@ -56,8 +56,7 @@ public class TagsEditor : Box
 
         foreach (var music in _musics)
         {
-            var identifier = music.Resource.Identifier;
-            var tags = _musicService.LoadEditableTags(identifier);
+            var tags = _musicManager.LoadEditableTags(music);
 
             if (AllowEditTitle())
                 tags.Title = title;
@@ -65,7 +64,7 @@ public class TagsEditor : Box
             tags.Artist = artist;
             tags.Album = album;
             tags.AlbumArtist = albumArtist;
-            _musicService.UpdateTags(identifier, tags);
+            _musicManager.UpdateTags(music, tags);
         }
     }
 

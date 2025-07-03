@@ -1,6 +1,4 @@
-using System.Collections.Generic;
-
-namespace Desktop.View;
+namespace Manager.Desktop.Views;
 
 public record MusicView(string Title, string Artist, string Album, string AlbumArtist, ResourceView Resource);
 

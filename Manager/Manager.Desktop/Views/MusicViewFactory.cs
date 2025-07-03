@@ -1,8 +1,7 @@
-using System.Linq;
 using Manager.Music;
 using Manager.Resource;
 
-namespace Desktop.View;
+namespace Manager.Desktop.Views;
 
 public static class MusicViewFactory
 {

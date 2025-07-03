@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Desktop.View;
 using Desktop.Widgets.Extensions;
 using Gtk;
+using Manager.Desktop;
+using Manager.Desktop.Views;
 using Action = System.Action;
 
 namespace Desktop.Widgets;
@@ -15,17 +16,17 @@ public class MusicEditor : Box
     private const string CancelIconName = "application-exit-symbolic";
     private readonly Box _content;
     private readonly Widget _musicDisplay;
-    private readonly MusicServiceView _musicService;
+    private readonly MusicManager _musicManager;
 
     private readonly MusicView[] _musicViews;
 
     private TagsEditor? _tagsEditor;
 
-    public MusicEditor(IEnumerable<MusicView> musics, Widget musicDisplay, MusicServiceView musicService)
+    public MusicEditor(IEnumerable<MusicView> musics, Widget musicDisplay, MusicManager musicManager)
         : base(Orientation.Vertical, 0)
     {
         _musicViews = musics.ToArray();
-        _musicService = musicService;
+        _musicManager = musicManager;
         _musicDisplay = musicDisplay;
 
         _content = new Box(Orientation.Vertical, 0);
@@ -101,7 +102,7 @@ public class MusicEditor : Box
 
     private void PackTagsEditor()
     {
-        _tagsEditor = new TagsEditor(_musicViews, _musicService);
+        _tagsEditor = new TagsEditor(_musicViews, _musicManager);
         _content.PackStart(_tagsEditor);
     }
 

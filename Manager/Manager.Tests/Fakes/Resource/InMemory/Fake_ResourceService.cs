@@ -25,4 +25,9 @@ public class Fake_ResourceService(
     {
         return repository.GetStreamAccess(identifier).OpenWrite();
     }
+
+    public string GetResourceExtension(IResourceIdentifier identifier)
+    {
+        throw new NotImplementedException();
+    }
 }

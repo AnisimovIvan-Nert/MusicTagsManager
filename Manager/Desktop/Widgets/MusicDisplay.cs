@@ -1,5 +1,5 @@
-using Desktop.View;
 using Gtk;
+using Manager.Desktop.Views;
 
 namespace Desktop.Widgets;
 

@@ -1,5 +1,5 @@
 using Manager.Resource;
 
-namespace Desktop.View;
+namespace Manager.Desktop.Views;
 
 public record ResourceView(string Name, string Location, IResourceIdentifier Identifier);
