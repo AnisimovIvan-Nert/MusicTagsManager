@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Desktop.CallTraceLogger;
 using Desktop.Widgets.Extensions;
 using Gtk;
 using Manager.Desktop;
@@ -7,6 +8,7 @@ using Manager.Desktop.Views;
 
 namespace Desktop.Widgets;
 
+[ConsoleCallTraceLogger]
 public class TagsEditor : Box
 {
     private const string TitleEntryLabel = "Title";
@@ -23,7 +25,7 @@ public class TagsEditor : Box
     {
         _musics = musics.ToArray();
         _musicManager = musicManager;
-        
+
         var tags = _musics.Select(_musicManager.LoadEditableTags).ToArray();
 
         _tagsEntries = new TagsEntries();

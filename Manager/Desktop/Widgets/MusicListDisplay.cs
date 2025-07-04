@@ -1,12 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Desktop.CallTraceLogger;
 using Desktop.Widgets.Extensions;
 using Gtk;
 using Manager.Desktop.Views;
 
 namespace Desktop.Widgets;
 
+[ConsoleCallTraceLogger]
 public class MusicListDisplay : Box, IMusicSelection
 {
     private readonly Dictionary<Column, ListColumn> _columns;
@@ -25,12 +27,12 @@ public class MusicListDisplay : Box, IMusicSelection
         PackColumnToggleBox();
         PackTreeView();
     }
-    
+
     public IEnumerable<MusicView> GetSelectedMusic()
     {
         if (_tree == null)
             return [];
-        
+
         var selectedRows = _tree.Selection.GetSelectedRows();
         var selectedMusics = new List<MusicView>();
         foreach (var selected in selectedRows)

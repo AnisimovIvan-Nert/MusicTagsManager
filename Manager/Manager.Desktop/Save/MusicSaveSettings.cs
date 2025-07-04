@@ -1,6 +1,6 @@
 using Manager.Desktop.Views;
 
-namespace Manager.Desktop;
+namespace Manager.Desktop.Save;
 
 public delegate string FileNameParser(MusicView music);
 

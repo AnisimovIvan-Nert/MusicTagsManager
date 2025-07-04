@@ -1,8 +1,10 @@
+using Desktop.CallTraceLogger;
 using Desktop.Widgets.Extensions;
 using Gtk;
 
 namespace Desktop.Widgets;
 
+[ConsoleCallTraceLogger]
 public abstract class ListSection : Box
 {
     private const int GridSpacing = 6;

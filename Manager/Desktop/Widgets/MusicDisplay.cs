@@ -1,8 +1,10 @@
+using Desktop.CallTraceLogger;
 using Gtk;
 using Manager.Desktop.Views;
 
 namespace Desktop.Widgets;
 
+[ConsoleCallTraceLogger]
 public class MusicDisplay : ListSection
 {
     public MusicDisplay(MusicView musicView)

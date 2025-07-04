@@ -1,22 +1,26 @@
 using System;
+using Desktop.CallTraceLogger;
 using Desktop.Widgets.Extensions;
 using Gtk;
-using Manager.Desktop;
+using Manager.Desktop.Save;
 using Manager.Desktop.Views;
 
 namespace Desktop.Widgets;
 
+[ConsoleCallTraceLogger]
 public class SaveSettings : Box
 {
     private CheckButton? _artistButton;
     private CheckButton? _albumButton;
     private Entry? _fileNameFormatEntry;
 
-    private CheckButton ArtistButton => _artistButton 
+    private CheckButton ArtistButton => _artistButton
                                         ?? throw new InvalidOperationException();
-    private CheckButton AlbumButton => _albumButton 
+
+    private CheckButton AlbumButton => _albumButton
                                        ?? throw new InvalidOperationException();
-    private Entry FileNameFormatEntry => _fileNameFormatEntry 
+
+    private Entry FileNameFormatEntry => _fileNameFormatEntry
                                          ?? throw new InvalidOperationException();
 
     public SaveSettings() : base(Orientation.Vertical, 3)
@@ -52,9 +56,9 @@ public class SaveSettings : Box
         }
     }
 
-    private void ArtistCheckButton_Toggled(object? sender, EventArgs _)
+    private void ArtistCheckButton_Toggled(object? _, EventArgs __)
     {
-        ArtistButton.Sensitive = ArtistButton.Active;
+        AlbumButton.Sensitive = ArtistButton.Active;
     }
 
     private void PackHierarchyBox()
@@ -68,7 +72,7 @@ public class SaveSettings : Box
         _artistButton = new CheckButton("Artist");
         _artistButton.Toggled += ArtistCheckButton_Toggled;
         hierarchyBox.PackStart(_artistButton);
-        
+
         _albumButton = new CheckButton("Artist");
         _albumButton.Sensitive = false;
         hierarchyBox.PackStart(_albumButton);

@@ -3,3 +3,5 @@
 *.runsettings
 [Bb]in/
 [Oo]bj/
+
+*.xsd

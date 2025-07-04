@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Desktop.CallTraceLogger;
 using Desktop.Widgets.Extensions;
 using Gtk;
 using Manager.Desktop;
@@ -9,6 +10,7 @@ using Action = System.Action;
 
 namespace Desktop.Widgets;
 
+[ConsoleCallTraceLogger]
 public class MusicEditor : Box
 {
     private const string EditIconName = "document-edit-symbolic";
@@ -22,7 +24,7 @@ public class MusicEditor : Box
 
     private TagsEditor? _tagsEditor;
 
-    public MusicEditor(IEnumerable<MusicView> musics, Widget musicDisplay, 
+    public MusicEditor(IEnumerable<MusicView> musics, Widget musicDisplay,
         MusicManager musicManager, IMusicSelection? musicSelection = null)
         : base(Orientation.Vertical, 0)
     {
@@ -107,7 +109,7 @@ public class MusicEditor : Box
         var selectedMusic = _musicSelection?.GetSelectedMusic().ToArray();
         if (selectedMusic == null || selectedMusic.Length == 0)
             selectedMusic = _musicViews;
-        
+
         _tagsEditor = new TagsEditor(selectedMusic, _musicManager);
         _content.PackStart(_tagsEditor);
     }

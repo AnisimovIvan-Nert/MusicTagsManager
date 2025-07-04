@@ -1,5 +1,5 @@
 using System;
-using System.Diagnostics;
+using Desktop.CallTraceLogger;
 using Desktop.Widgets;
 using Desktop.Widgets.Extensions;
 using Gdk;
@@ -11,12 +11,15 @@ using WindowType = Gtk.WindowType;
 
 namespace Desktop.Main;
 
+[ConsoleCallTraceLogger]
 public class MainWindow : Window
 {
     private const string OpenFolderIcon = "folder-open-symbolic";
     private const string SaveFolderIcon = "document-save-symbolic";
 
-    private Box? _boxContent;
+    private readonly Paned _windowContent;
+
+    private Box? _mainViewContent;
     private MusicManager? _musicManager;
 
     public MainWindow() : base(WindowType.Toplevel)
@@ -24,7 +27,7 @@ public class MainWindow : Window
         var openButton = new Button();
         openButton.Image = Image.NewFromIconName(OpenFolderIcon, IconSize.Button);
         openButton.Clicked += OpenButton_Clicked;
-        
+
         var saveButton = new Button();
         saveButton.Image = Image.NewFromIconName(SaveFolderIcon, IconSize.Button);
         saveButton.Clicked += SaveButton_Clicked;
@@ -36,28 +39,30 @@ public class MainWindow : Window
         headerBar.PackStart(saveButton);
         Titlebar = headerBar;
 
+        _windowContent = new Paned(Orientation.Horizontal);
+        _windowContent.Position = 200;
+        Child = _windowContent;
+
         Destroyed += (_, _) => Application.Quit();
     }
 
     private MusicManager MusicManager => _musicManager
-                                             ?? throw new InvalidOperationException();
+                                         ?? throw new InvalidOperationException();
 
     private void DisplayFolder(string folderPath)
     {
+        if (_windowContent.Child1 != null)
+            _windowContent.Remove(_windowContent.Child1);
+        if (_windowContent.Child2 != null)
+            _windowContent.Remove(_windowContent.Child2);
+
         _musicManager = new MusicManager(folderPath);
 
-        Remove(Child);
-
-        var horizontalPaned = new Paned(Orientation.Horizontal);
-        horizontalPaned.Position = 200;
-
         var tree = CreateTreeView();
-        horizontalPaned.Pack1(tree, false, true);
+        _windowContent.Pack1(tree, false, true);
 
         var mainScroll = CreateMainView();
-        horizontalPaned.Pack2(mainScroll, true, true);
-
-        Child = horizontalPaned;
+        _windowContent.Pack2(mainScroll, true, true);
 
         ShowAll();
     }
@@ -65,9 +70,9 @@ public class MainWindow : Window
     private ScrolledWindow CreateMainView()
     {
         var mainScroll = new ScrolledWindow();
-        _boxContent = new Box(Orientation.Vertical, 0);
-        _boxContent.Margin = 8;
-        mainScroll.Child = _boxContent;
+        _mainViewContent = new Box(Orientation.Vertical, 0);
+        _mainViewContent.Margin = 8;
+        mainScroll.Child = _mainViewContent;
         return mainScroll;
     }
 
@@ -83,14 +88,14 @@ public class MainWindow : Window
 
     private void TreeSelectionChanged(Widget widget)
     {
-        if (_boxContent == null)
+        if (_mainViewContent == null)
             return;
 
-        while (_boxContent.Children.Length > 0)
-            _boxContent.Remove(_boxContent.Children[0]);
+        while (_mainViewContent.Children.Length > 0)
+            _mainViewContent.Remove(_mainViewContent.Children[0]);
 
-        _boxContent.PackStart(widget, true, true, 0);
-        _boxContent.ShowAll();
+        _mainViewContent.PackStart(widget, true, true, 0);
+        _mainViewContent.ShowAll();
     }
 
     private void OpenButton_Clicked(object? _, EventArgs __)
@@ -100,37 +105,30 @@ public class MainWindow : Window
             DisplayFolder(folder);
     }
 
-    private async void SaveButton_Clicked(object? _, EventArgs __)
+    private void SaveButton_Clicked(object? _, EventArgs __)
     {
-        try
-        {
-            if (_musicManager == null)
-                return;
-        
-            var fileResponse = RunFolderChooserDialog("Select Folder", Stock.Save, out var folder);
-            if (fileResponse == ResponseType.Cancel || folder == null)
-                return;
+        if (_musicManager == null)
+            return;
 
-            var settingsResponse = RusSaveSettingDialog(out var settings);
-        
-            if (settingsResponse == ResponseType.Cancel)
-                return;
-            
-            var saveOperation = new MusicSaveOperation(_musicManager, settings);
-        
-            await saveOperation.ExecuteAsync(folder);
-        }
-        catch (Exception e)
-        {
-            Debug.WriteLine(e);
-        }
+        var fileResponse = RunFolderChooserDialog("Select Folder", Stock.Save, out var folder);
+        if (fileResponse == ResponseType.Cancel || folder == null)
+            return;
+
+        var settingsResponse = RunSaveSettingDialog(out var settings);
+
+        if (settingsResponse == ResponseType.Cancel)
+            return;
+
+        var saveOperation = new MusicSaveOperation(_musicManager, settings);
+
+        saveOperation.Execute(folder);
     }
 
     private ResponseType RunFolderChooserDialog(string title, string okButton, out string? folder)
     {
         folder = null;
 
-        var fileChooserDialog = new FileChooserDialog(title, this, FileChooserAction.SelectFolder);
+        using var fileChooserDialog = new FileChooserDialog(title, this, FileChooserAction.SelectFolder);
         fileChooserDialog.AddButton(Stock.Cancel, ResponseType.Cancel);
         fileChooserDialog.AddButton(okButton, ResponseType.Ok);
         fileChooserDialog.DefaultResponse = ResponseType.Ok;
@@ -139,27 +137,24 @@ public class MainWindow : Window
         var response = (ResponseType)fileChooserDialog.Run();
         if (response == ResponseType.Ok)
             folder = fileChooserDialog.Filename;
-        fileChooserDialog.Destroy();
-        fileChooserDialog.Dispose();
+
         return response;
     }
 
-    private ResponseType RusSaveSettingDialog(out MusicSaveSettings musicSaveSettings)
+    private ResponseType RunSaveSettingDialog(out MusicSaveSettings musicSaveSettings)
     {
-        var settingsDialog = new Dialog("Save Settings", this, DialogFlags.Modal);
+        using var settingsDialog = new Dialog("Save Settings", this, DialogFlags.Modal);
         settingsDialog.AddButton(Stock.Cancel, ResponseType.Cancel);
         settingsDialog.AddButton(Stock.Ok, ResponseType.Ok);
         settingsDialog.DefaultSize = new Size(300, 200);
-        
+
         var saveSettings = new SaveSettings();
         var dialogContent = (Box)settingsDialog.Child;
         dialogContent.PackStart(saveSettings);
         dialogContent.ShowAll();
-        
+
         var settingsResponse = (ResponseType)settingsDialog.Run();
         musicSaveSettings = saveSettings.GetSettings();
-        settingsDialog.Destroy();
-        settingsDialog.Dispose();
 
         return settingsResponse;
     }

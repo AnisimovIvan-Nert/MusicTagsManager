@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Desktop.CallTraceLogger;
 using Desktop.Widgets;
 using Gtk;
 using Manager.Desktop;
@@ -8,6 +9,7 @@ using Manager.Desktop.Views;
 
 namespace Desktop.Main;
 
+[ConsoleCallTraceLogger]
 public class MusicTree
 {
     private readonly Dictionary<TreeIter, AlbumView> _albums;
@@ -18,7 +20,7 @@ public class MusicTree
     private TreeStore? _treeStore;
     private TreeIter _selectAll;
     private object? _lastSelection;
-    
+
     public TreeView TreeView { get; }
 
     public MusicTree(IEnumerable<ArtistView> artists, MusicManager musicManager)
@@ -92,7 +94,8 @@ public class MusicTree
         SelectionChanged?.Invoke(musicEditor);
     }
 
-    private Widget? TryGetMusicDisplay(TreeIter iter, out List<MusicView> displayedMusic, out IMusicSelection? musicSelection)
+    private Widget? TryGetMusicDisplay(TreeIter iter, out List<MusicView> displayedMusic,
+        out IMusicSelection? musicSelection)
     {
         _lastSelection = null;
         displayedMusic = [];
@@ -146,33 +149,33 @@ public class MusicTree
     private TreeIter TryFindLastSelection()
     {
         var defaultSelection = _selectAll;
-        
+
         switch (_lastSelection)
         {
             case ArtistView artist:
             {
                 var newArtist = _artists.Values
                     .FirstOrDefault(value => value.Name == artist.Name);
-                return newArtist == null 
-                    ? defaultSelection 
+                return newArtist == null
+                    ? defaultSelection
                     : _artists.First(pair => pair.Value == newArtist).Key;
             }
             case AlbumView album:
             {
                 var newAlbum = _albums.Values
-                    .FirstOrDefault(value => value.Title == album.Title 
+                    .FirstOrDefault(value => value.Title == album.Title
                                              && value.Artist == album.Artist);
-                return newAlbum == null 
-                    ? defaultSelection 
+                return newAlbum == null
+                    ? defaultSelection
                     : _albums.First(pair => pair.Value == newAlbum).Key;
             }
             case MusicView music:
             {
                 var newMusic = _musics.Values
-                    .FirstOrDefault(value => value.Title == music.Title 
+                    .FirstOrDefault(value => value.Title == music.Title
                                              && value.Artist == music.Artist);
-                return newMusic == null 
-                    ? defaultSelection 
+                return newMusic == null
+                    ? defaultSelection
                     : _musics.First(pair => pair.Value == newMusic).Key;
             }
             default:
