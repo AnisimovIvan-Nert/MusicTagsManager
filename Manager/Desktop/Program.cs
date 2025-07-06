@@ -1,23 +1,30 @@
 using System;
-using Gtk;
+using Desktop.CallTraceLogger;
+using Desktop.Main;
+using Gdk;
+using GLib;
+using Application = Gtk.Application;
 
-namespace Desktop
+namespace Desktop;
+
+[ConsoleCallTraceLogger]
+public class Program
 {
-    class Program
+    private const string ApplicationId = "org.Desktop.Desktop";
+
+    [STAThread]
+    public static void Main(string[] args)
     {
-        [STAThread]
-        public static void Main(string[] args)
-        {
-            Application.Init();
+        Application.Init();
 
-            var app = new Application("org.Desktop.Desktop", GLib.ApplicationFlags.None);
-            app.Register(GLib.Cancellable.Current);
+        var app = new Application(ApplicationId, ApplicationFlags.None);
+        app.Register(Cancellable.Current);
 
-            var win = new MainWindow();
-            app.AddWindow(win);
+        var win = new MainWindow();
+        win.DefaultSize = new Size(800, 600);
+        app.AddWindow(win);
 
-            win.Show();
-            Application.Run();
-        }
+        win.ShowAll();
+        Application.Run();
     }
 }
