@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net9.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <RootNamespace>MusicTagsManager.Desktop.Linux</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Remove="**\*.glade"/>
+        <EmbeddedResource Include="**\*.glade">
+            <LogicalName>%(Filename)%(Extension)</LogicalName>
+        </EmbeddedResource>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="CompileTimeWeaver.Fody" Version="3.3.5" />
+        <PackageReference Include="GtkSharp" Version="3.24.24.117-develop"/>
+        <PackageReference Include="GtkSourceSharp" Version="3.24.24.117-develop"/>
+        <PackageReference Include="WebkitGtkSharp" Version="3.24.24.117-develop"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\MusicTagsManager.Desktop\MusicTagsManager.Desktop.csproj" />
+        <ProjectReference Include="..\MusicTagsManager.Implementation\MusicTagsManager.Implementation.csproj" />
+    </ItemGroup>
+
+</Project>

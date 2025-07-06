@@ -1,0 +1,9 @@
+using MusicTagsManager.Music;
+
+namespace MusicTagsManager.Implementation.Music;
+
+internal class Artist(string name, IEnumerable<IAlbum> albums) : IArtist
+{
+    public string Name { get; } = name;
+    public IEnumerable<IAlbum> Albums { get; } = albums;
+}
