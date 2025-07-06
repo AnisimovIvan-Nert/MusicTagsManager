@@ -1,0 +1,31 @@
+using MusicTagsManager.Resource;
+
+namespace MusicTagsManager.Tests.Fakes.Resource.InMemory;
+
+public class Fake_ResourceRepository(
+    IResource resource)
+    : IResourceRepository
+{
+    private IResourceStreamAccess? _streamAccess;
+
+    public IEnumerable<IResource> GetAll()
+    {
+        yield return resource;
+    }
+
+    public IResource Get(IResourceIdentifier identifier)
+    {
+        return resource;
+    }
+
+    public IResourceStreamAccess GetStreamAccess(IResourceIdentifier identifier)
+    {
+        _streamAccess ??= new Fake_ResourceStreamAccess();
+        return _streamAccess;
+    }
+
+    public bool Contains(IResourceIdentifier identifier)
+    {
+        return identifier == resource;
+    }
+}
